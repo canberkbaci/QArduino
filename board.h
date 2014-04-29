@@ -1,6 +1,11 @@
 #ifndef BOARD_H
 #define BOARD_H
 
+namespace ArduinoUno
+{
+
+#define NUM_DIGITAL_PIN 13
+
 enum ANALOG_READ_PIN
 {
     A0,
@@ -37,20 +42,22 @@ enum DIGITAL_IO_PIN
     D11,
     D12,
     D13,
-    LED_BUILTIN
+    LED_BUILTIN = D13
 };
 
 enum PIN_MODE
 {
-    OUTPUT = 0,
-    INPUT = 1,
-    INPUT_PULLUP = -1
+    OUTPUT,
+    INPUT,
+    INPUT_PULLUP
 };
 
 enum PIN_LEVEL
 {
-    LOW = false,
-    HIGH = true
+    LOW,
+    HIGH
 };
+
+}
 
 #endif // BOARD_H

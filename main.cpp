@@ -1,5 +1,6 @@
 #include <QCoreApplication>
 #include "arduino.h"
+using namespace ArduinoUno;
 
 int main(int argc, char *argv[])
 {
@@ -13,9 +14,8 @@ int main(int argc, char *argv[])
     board.open();
     board.setBaudRate(9600);
     qDebug() << board.baudRate();
-    bool value = board.digitalRead(12);
+    int value = board.analogRead(A0);
     qDebug() << value;
-    board.digitalWrite(13, false);
 
     return application.exec();
 }

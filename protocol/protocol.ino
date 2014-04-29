@@ -33,7 +33,7 @@ void serialEvent()
     if(buffer[0] == 'w')
     {
        int pin = buffer[1];
-       int value = buffer[2];
+       int value = buffer[2] + 128;
        analogWrite(pin, value);
     }
   }
