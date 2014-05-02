@@ -31,7 +31,7 @@ Upload protocol/protocol.ino to your Arduino UNO.
 
 Project compiles fine with Qt5. Qt4 requires CONFIG += serialport and QtSerialPort/QSerialPort include style.
 
-**To Do List:**
+**To-do List:**
 
 Full support of Arduino Uno functions.
 
