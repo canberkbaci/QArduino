@@ -23,6 +23,7 @@ Error handling.
 **Changes:**
 
 02.05.14 Added servo interface
+
 01.05.14 Added analog R/W for Arduino Uno.
 
 **Guideline:**
