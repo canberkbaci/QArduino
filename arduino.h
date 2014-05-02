@@ -5,12 +5,15 @@
 #include <QSerialPortInfo>
 #include <QDebug>
 
+#include "servo.h"
 #include "board.h"
 
-namespace ArduinoUno
+namespace QArduino
 {
 
-class QArduino : public QObject
+typedef QList<Servo *> ServoList;
+
+class Arduino : public QObject
 {
     Q_OBJECT
 
@@ -22,34 +25,42 @@ private:
     quint8 m_data;
     qint32 m_baudRate;
     QString m_errorString;
+    BoardType m_type;
+    ServoList m_servoList;
 
 private slots:
     void m_error();
     void m_read();
 
 public:
-    QArduino();
-    ~QArduino();
+    explicit Arduino(QObject *parent = 0);
+    ~Arduino();
+
     void open();
     void close();
 
-    quint8 analogRead(const ANALOG_READ_PIN &pin);
-    void analogWrite(const ANALOG_WRITE_PIN &pin, const quint8 &value);
+    quint8 analogRead(const AnalogReadPin &pin);
+    void analogWrite(const AnalogWritePin &pin, const quint8 &value);
 
-    void pinMode(const DIGITAL_IO_PIN &pin, const PIN_MODE &mode);
-    void pinMode(const int &pin, const PIN_MODE &mode);
+    void pinMode(const DigitalIOPin &pin, const PinMode &mode);
+    void pinMode(const int &pin, const PinMode &mode);
 
-    PIN_LEVEL digitalRead(const DIGITAL_IO_PIN &pin);
+    PinLevel digitalRead(const DigitalIOPin &pin);
     bool digitalRead(const int &pin);
 
-    void digitalWrite(const DIGITAL_IO_PIN &pin, const PIN_LEVEL &level);
+    void digitalWrite(const DigitalIOPin &pin, const PinLevel &level);
     void digitalWrite(const int &pin, const bool &level);
 
+    BoardType type() const;
     QString port() const;
     QString description() const;
 
     qint32 baudRate() const;
     void setBaudRate(const qint32 &baudRate);
+
+    int numServos();
+    ServoList servoList();
+    void addServo(Servo *newServo);
 
 signals:
     void error(QString);

@@ -1,12 +1,12 @@
 #include <QCoreApplication>
 #include "arduino.h"
-using namespace ArduinoUno;
+#include "servo.h"
 
 int main(int argc, char *argv[])
 {
     QCoreApplication application(argc, argv);
 
-    QArduino board;
+    QArduino::Arduino board;
     QString port = board.port();
     qDebug() << port;
     QString desc = board.description();
@@ -14,8 +14,15 @@ int main(int argc, char *argv[])
     board.open();
     board.setBaudRate(9600);
     qDebug() << board.baudRate();
-    int value = board.analogRead(A0);
-    qDebug() << value;
+    bool v = board.digitalRead(13);
+    qDebug() << v;
+ //   board.digitalWrite(13, QArduino::HIGH);
+    QArduino::Servo s;
+    s.setBoard(&board);
+    s.board()->digitalWrite(13, QArduino::HIGH);
+    qDebug()<< "OK";
+    s.~Servo();
+    board.digitalWrite(13, QArduino::HIGH);
 
     return application.exec();
 }

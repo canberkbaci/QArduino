@@ -1,12 +1,19 @@
 #ifndef BOARD_H
 #define BOARD_H
 
-namespace ArduinoUno
+namespace QArduino
 {
 
-#define NUM_DIGITAL_PIN 13
+enum BoardType
+{
+    UNO,
+    LEONARDO,
+    MEGA
+};
 
-enum ANALOG_READ_PIN
+// UNO definitions
+
+enum AnalogReadPin
 {
     A0,
     A1,
@@ -16,7 +23,7 @@ enum ANALOG_READ_PIN
     A5
 };
 
-enum ANALOG_WRITE_PIN
+enum AnalogWritePin
 {
     PWM3 = 3,
     PWM5 = 5,
@@ -26,7 +33,9 @@ enum ANALOG_WRITE_PIN
     PWM11 = 11
 };
 
-enum DIGITAL_IO_PIN
+#define NUM_DIGITAL_PIN 13
+
+enum DigitalIOPin
 {
     D0,
     D1,
@@ -45,14 +54,14 @@ enum DIGITAL_IO_PIN
     LED_BUILTIN = D13
 };
 
-enum PIN_MODE
+enum PinMode
 {
     OUTPUT,
     INPUT,
     INPUT_PULLUP
 };
 
-enum PIN_LEVEL
+enum PinLevel
 {
     LOW,
     HIGH

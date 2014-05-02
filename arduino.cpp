@@ -1,7 +1,7 @@
 #include "arduino.h"
-using namespace ArduinoUno;
+using namespace QArduino;
 
-QArduino::QArduino()
+Arduino::Arduino(QObject *parent) : QObject(parent)
 {
     if(m_locateArduino())
     {
@@ -21,16 +21,17 @@ QArduino::QArduino()
     }
 }
 
-QArduino::~QArduino()
+Arduino::~Arduino()
 {
-    if(m_device->isOpen())
-    {
-        m_device->close();
-    }
+    // free port
+//    if(m_device->isOpen())
+//    {
+//        m_device->close();
+//    }
     delete m_device;
 }
 
-bool QArduino::m_locateArduino()
+bool Arduino::m_locateArduino()
 {
     // Search for Arduino
     QList<QSerialPortInfo> serialPorts = QSerialPortInfo::availablePorts();
@@ -40,13 +41,14 @@ bool QArduino::m_locateArduino()
         {
             m_description = serialPorts[i].description();
             m_port = serialPorts[i].portName();
+            m_type = UNO;
             return true;
         }
     }
     return false;
 }
 
-quint8 QArduino::analogRead(const ANALOG_READ_PIN &pin)
+quint8 Arduino::analogRead(const AnalogReadPin &pin)
 {
     // {'r', pin, '0'}
     QByteArray data;
@@ -60,10 +62,10 @@ quint8 QArduino::analogRead(const ANALOG_READ_PIN &pin)
             qDebug() << "analogRead successful.";
         }
     }
-    return (PIN_LEVEL) m_data;
+    return (PinLevel) m_data;
 }
 
-void QArduino::analogWrite(const ANALOG_WRITE_PIN &pin, const quint8 &value)
+void Arduino::analogWrite(const AnalogWritePin &pin, const quint8 &value)
 {
     // {'w', pin, value}
     QByteArray data;
@@ -77,7 +79,7 @@ void QArduino::analogWrite(const ANALOG_WRITE_PIN &pin, const quint8 &value)
 }
 
 
-PIN_LEVEL QArduino::digitalRead(const DIGITAL_IO_PIN &pin)
+PinLevel Arduino::digitalRead(const DigitalIOPin &pin)
 {
     // {'R', pin, '0'}
     QByteArray data;
@@ -91,10 +93,10 @@ PIN_LEVEL QArduino::digitalRead(const DIGITAL_IO_PIN &pin)
             qDebug() << "digitalRead successful.";
         }
     }
-    return (PIN_LEVEL) m_data;
+    return (PinLevel) m_data;
 }
 
-bool QArduino::digitalRead(const int &pin)
+bool Arduino::digitalRead(const int &pin)
 {
     if(pin > NUM_DIGITAL_PIN || pin < 0)
     {
@@ -117,7 +119,7 @@ bool QArduino::digitalRead(const int &pin)
     return m_data;
 }
 
-void QArduino::digitalWrite(const DIGITAL_IO_PIN &pin, const PIN_LEVEL &level)
+void Arduino::digitalWrite(const DigitalIOPin &pin, const PinLevel &level)
 {
     // {'W', pin, value}
     QByteArray data;
@@ -130,7 +132,7 @@ void QArduino::digitalWrite(const DIGITAL_IO_PIN &pin, const PIN_LEVEL &level)
     }
 }
 
-void QArduino::digitalWrite(const int &pin, const bool &level)
+void Arduino::digitalWrite(const int &pin, const bool &level)
 {
     if(pin > NUM_DIGITAL_PIN || pin < 0)
     {
@@ -149,7 +151,7 @@ void QArduino::digitalWrite(const int &pin, const bool &level)
     }
 }
 
-void QArduino::open()
+void Arduino::open()
 {
     m_device->open(QIODevice::ReadWrite);
     m_device->setBaudRate(QSerialPort::Baud9600);
@@ -157,22 +159,22 @@ void QArduino::open()
     m_device->setParity(QSerialPort::NoParity);
 }
 
-void QArduino::close()
+void Arduino::close()
 {
     m_device->close();
 }
 
-QString QArduino::port() const
+QString Arduino::port() const
 {
     return m_port;
 }
 
-QString QArduino::description() const
+QString Arduino::description() const
 {
     return m_description;
 }
 
-void QArduino::m_error()
+void Arduino::m_error()
 {
     if(m_device->error() != QSerialPort::NoError && m_device->error() != QSerialPort::UnknownError)
     {
@@ -182,21 +184,42 @@ void QArduino::m_error()
     }
 }
 
-void QArduino::m_read()
+void Arduino::m_read()
 {
     m_data = m_device->readAll().toUInt();
     emit receivedData(m_data);
 }
 
-qint32 QArduino::baudRate() const
+qint32 Arduino::baudRate() const
 {
     return m_baudRate;
 }
 
-void QArduino::setBaudRate(const qint32 &baudRate)
+void Arduino::setBaudRate(const qint32 &baudRate)
 {
     if(m_device->setBaudRate(baudRate))
     {
         m_baudRate = baudRate;
     }
+}
+
+int Arduino::numServos()
+{
+    return m_servoList.size();
+}
+
+ServoList Arduino::servoList()
+{
+    return m_servoList;
+}
+
+BoardType Arduino::type() const
+{
+    return m_type;
+}
+
+
+void Arduino::addServo(Servo *newServo)
+{
+    m_servoList.append(newServo);
 }
