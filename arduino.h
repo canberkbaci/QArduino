@@ -1,21 +1,22 @@
 #ifndef ARDUINO_H
 #define ARDUINO_H
 
+#include <QObject>
 #include <QSerialPort>
-#include <QSerialPortInfo>
-#include <QDebug>
 
-#include "servo.h"
 #include "board.h"
 
 namespace QArduino
 {
 
+class Servo;
 typedef QList<Servo *> ServoList;
 
-class Arduino : public QObject
+class Arduino : QObject
 {
     Q_OBJECT
+
+friend class Servo;
 
 private:
     QSerialPort *m_device;
@@ -38,6 +39,8 @@ public:
 
     void open();
     void close();
+
+    void delay(const int &miliseconds);
 
     quint8 analogRead(const AnalogReadPin &pin);
     void analogWrite(const AnalogWritePin &pin, const quint8 &value);

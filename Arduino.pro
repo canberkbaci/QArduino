@@ -8,10 +8,10 @@ CONFIG   -= app_bundle
 TEMPLATE = app
 
 SOURCES += main.cpp \
-    arduino.cpp \
-    servo.cpp
+        arduino.cpp \
+        servo.cpp
 
-HEADERS += \
-    servo.h \
-    arduino.h \
-    board.h
+HEADERS += arduino.h \
+        servo.h \
+        board.h \
+    global.h

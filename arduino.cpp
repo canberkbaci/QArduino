@@ -1,4 +1,11 @@
+#include <QCoreApplication>
+#include <QSerialPortInfo>
+#include <QDebug>
+
 #include "arduino.h"
+#include "servo.h"
+#include "global.h"
+
 using namespace QArduino;
 
 Arduino::Arduino(QObject *parent) : QObject(parent)
@@ -23,11 +30,6 @@ Arduino::Arduino(QObject *parent) : QObject(parent)
 
 Arduino::~Arduino()
 {
-    // free port
-//    if(m_device->isOpen())
-//    {
-//        m_device->close();
-//    }
     delete m_device;
 }
 
@@ -35,13 +37,43 @@ bool Arduino::m_locateArduino()
 {
     // Search for Arduino
     QList<QSerialPortInfo> serialPorts = QSerialPortInfo::availablePorts();
+
     for(int i = 0; i < serialPorts.size(); i++)
     {
-        if(serialPorts[i].description().contains("Arduino UNO"))
+        if(serialPorts[i].vendorIdentifier() == VENDOR_ID)
         {
+            switch(serialPorts[i].productIdentifier())
+            {
+            case UNO_ID:
+                m_type = UNO;
+                break;
+            case MEGA_2560_ID:
+                m_type = MEGA_2560;
+                break;
+            case SERIAL_ID:
+                m_type = SERIAL;
+                break;
+            case MEGA_ADK_ID:
+                m_type = MEGA_ADK;
+                break;
+            case MEGA_2560_R3_ID:
+                m_type = MEGA_2560_R3;
+                break;
+            case UNO_R3_ID:
+                m_type = UNO_R3;
+                break;
+            case MEGA_ADK_R3_ID:
+                m_type = MEGA_ADK_R3;
+                break;
+            case SERIAL_R3_ID:
+                m_type = SERIAL_R3;
+                break;
+            case LEONARDO_ID:
+                m_type = LEONARDO;
+                break;
+            }
             m_description = serialPorts[i].description();
             m_port = serialPorts[i].portName();
-            m_type = UNO;
             return true;
         }
     }
@@ -55,14 +87,15 @@ quint8 Arduino::analogRead(const AnalogReadPin &pin)
     data.append('r');
     data.append(pin);
     data.append('0');
-    if(m_device->write(data) >= 0)
+    if(m_device->write(data) == 3)
     {
-        if(m_device->waitForReadyRead(50))
+        if(m_device->waitForReadyRead(500))
         {
+            QCoreApplication::processEvents();
             qDebug() << "analogRead successful.";
         }
     }
-    return (PinLevel) m_data;
+    return m_data;
 }
 
 void Arduino::analogWrite(const AnalogWritePin &pin, const quint8 &value)
@@ -72,12 +105,37 @@ void Arduino::analogWrite(const AnalogWritePin &pin, const quint8 &value)
     data.append('w');
     data.append(pin);
     data.append(value - 128);
-    if(m_device->write(data) >= 0)
+    if(m_device->write(data) == 3)
     {
         qDebug() << "analogWrite successful.";
     }
 }
 
+void Arduino::pinMode(const DigitalIOPin &pin, const PinMode &mode)
+{
+    // {'p', pin, mode}
+    QByteArray data;
+    data.append('p');
+    data.append(pin);
+    data.append(mode);
+    if(m_device->write(data) == 3)
+    {
+        qDebug() << "pinMode successful.";
+    }
+}
+
+void Arduino::pinMode(const int &pin, const PinMode &mode)
+{
+    // {'p', pin, mode}
+    QByteArray data;
+    data.append('p');
+    data.append(pin);
+    data.append(mode);
+    if(m_device->write(data) == 3)
+    {
+        qDebug() << "pinMode successful.";
+    }
+}
 
 PinLevel Arduino::digitalRead(const DigitalIOPin &pin)
 {
@@ -86,10 +144,11 @@ PinLevel Arduino::digitalRead(const DigitalIOPin &pin)
     data.append('R');
     data.append(pin);
     data.append('0');
-    if(m_device->write(data) >= 0)
+    if(m_device->write(data) == 3)
     {
-        if(m_device->waitForReadyRead(50))
+        if(m_device->waitForReadyRead(500))
         {
+            QCoreApplication::processEvents();
             qDebug() << "digitalRead successful.";
         }
     }
@@ -109,10 +168,11 @@ bool Arduino::digitalRead(const int &pin)
     data.append('R');
     data.append(pin);
     data.append('0');
-    if(m_device->write(data) >= 0)
+    if(m_device->write(data) == 3)
     {
-        if(m_device->waitForReadyRead(50))
+        if(m_device->waitForReadyRead(500))
         {
+            QCoreApplication::processEvents();
             qDebug() << "digitalRead successful.";
         }
     }
@@ -126,8 +186,9 @@ void Arduino::digitalWrite(const DigitalIOPin &pin, const PinLevel &level)
     data.append('W');
     data.append(pin);
     data.append(level);
-    if(m_device->write(data) >= 0)
+    if(m_device->write(data) == 3)
     {
+        QCoreApplication::processEvents();
         qDebug() << "digitalWrite successful.";
     }
 }
@@ -145,8 +206,9 @@ void Arduino::digitalWrite(const int &pin, const bool &level)
     data.append('W');
     data.append(pin);
     data.append(level);
-    if(m_device->write(data) >= 0)
+    if(m_device->write(data) == 3)
     {
+        QCoreApplication::processEvents();
         qDebug() << "digitalWrite successful.";
     }
 }
@@ -162,6 +224,15 @@ void Arduino::open()
 void Arduino::close()
 {
     m_device->close();
+}
+
+void Arduino::delay(const int &miliseconds)
+{
+    #ifdef _WIN32
+    Sleep(miliseconds);
+    #else
+    usleep(miliseconds * 1000);
+    #endif
 }
 
 QString Arduino::port() const
@@ -186,7 +257,9 @@ void Arduino::m_error()
 
 void Arduino::m_read()
 {
-    m_data = m_device->readAll().toUInt();
+    // Incoming data : always 1 byte
+    m_data = m_device->readAll()[0];
+    qDebug() << "RECEIVED BYTE =" << m_data;
     emit receivedData(m_data);
 }
 
@@ -217,7 +290,6 @@ BoardType Arduino::type() const
 {
     return m_type;
 }
-
 
 void Arduino::addServo(Servo *newServo)
 {
