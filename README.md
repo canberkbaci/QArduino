@@ -22,6 +22,8 @@ Error handling.
 
 **Changes:**
 
+11.05.14 Added arduino vendor information, delay support, header cleanups, several bugfixes
+
 02.05.14 Added servo interface
 
 01.05.14 Added analog R/W for Arduino Uno.
@@ -33,10 +35,6 @@ Upload protocol/protocol.ino to your Arduino UNO.
 Project compiles fine with Qt5. Qt4 requires CONFIG += serialport and QtSerialPort/QSerialPort include style.
 
 **To-do List:**
-
-Full support of Arduino Uno functions.
-
-Servo and stepper motor interfaces.
 
 Arduino Leonardo and Arduino Mega compatibility.
 
