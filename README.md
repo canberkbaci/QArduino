@@ -6,7 +6,7 @@ Currently supports Arduino Uno.
 
 **Why:**
 
-For hardware based projects including RC motors, analog devices, etc.
+ATMega processors have 256k max memory, no multithreading support, no support for expensive operations like audio & video processing. Processing should be done on PC. Arduino should be the I/O layer for expensive and hardware based projects including RC motors, analog devices, etc.
 
 QArduino interface lets these devices controlled via your Qt/C++ project.
 
