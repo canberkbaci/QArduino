@@ -17,8 +17,6 @@ Arduino::Arduino(QObject *parent) : QObject(parent)
 
         connect(m_device, SIGNAL(error(QSerialPort::SerialPortError)),
                 this, SLOT(m_error()));
-        connect(m_device, SIGNAL(readyRead()),
-                this, SLOT(m_read()));
     }
     else
     {
@@ -89,9 +87,9 @@ quint8 Arduino::analogRead(const AnalogReadPin &pin)
     data.append('0');
     if(m_device->write(data) == 3)
     {
-        if(m_device->waitForReadyRead(500))
+        if(m_device->waitForReadyRead(100))
         {
-            QCoreApplication::processEvents();
+            m_read();
             qDebug() << "analogRead successful.";
         }
     }
@@ -107,7 +105,10 @@ void Arduino::analogWrite(const AnalogWritePin &pin, const quint8 &value)
     data.append(value - 128);
     if(m_device->write(data) == 3)
     {
-        qDebug() << "analogWrite successful.";
+        if(m_device->waitForBytesWritten(100))
+        {
+            qDebug() << "analogWrite successful.";
+        }
     }
 }
 
@@ -120,7 +121,10 @@ void Arduino::pinMode(const DigitalIOPin &pin, const PinMode &mode)
     data.append(mode);
     if(m_device->write(data) == 3)
     {
-        qDebug() << "pinMode successful.";
+        if(m_device->waitForBytesWritten(100))
+        {
+            qDebug() << "pinMode successful.";
+        }
     }
 }
 
@@ -133,7 +137,10 @@ void Arduino::pinMode(const int &pin, const PinMode &mode)
     data.append(mode);
     if(m_device->write(data) == 3)
     {
-        qDebug() << "pinMode successful.";
+        if(m_device->waitForBytesWritten(100))
+        {
+            qDebug() << "pinMode successful.";
+        }
     }
 }
 
@@ -146,9 +153,9 @@ PinLevel Arduino::digitalRead(const DigitalIOPin &pin)
     data.append('0');
     if(m_device->write(data) == 3)
     {
-        if(m_device->waitForReadyRead(500))
+        if(m_device->waitForReadyRead(100))
         {
-            QCoreApplication::processEvents();
+            m_read();
             qDebug() << "digitalRead successful.";
         }
     }
@@ -170,9 +177,9 @@ bool Arduino::digitalRead(const int &pin)
     data.append('0');
     if(m_device->write(data) == 3)
     {
-        if(m_device->waitForReadyRead(500))
+        if(m_device->waitForReadyRead(100))
         {
-            QCoreApplication::processEvents();
+            m_read();
             qDebug() << "digitalRead successful.";
         }
     }
@@ -188,8 +195,10 @@ void Arduino::digitalWrite(const DigitalIOPin &pin, const PinLevel &level)
     data.append(level);
     if(m_device->write(data) == 3)
     {
-        QCoreApplication::processEvents();
-        qDebug() << "digitalWrite successful.";
+        if(m_device->waitForBytesWritten(100))
+        {
+            qDebug() << "digitalWrite successful.";
+        }
     }
 }
 
@@ -208,8 +217,10 @@ void Arduino::digitalWrite(const int &pin, const bool &level)
     data.append(level);
     if(m_device->write(data) == 3)
     {
-        QCoreApplication::processEvents();
-        qDebug() << "digitalWrite successful.";
+        if(m_device->waitForBytesWritten(100))
+        {
+            qDebug() << "digitalWrite successful.";
+        }
     }
 }
 
@@ -228,11 +239,11 @@ void Arduino::close()
 
 void Arduino::delay(const int &miliseconds)
 {
-    #ifdef _WIN32
+#ifdef _WIN32
     Sleep(miliseconds);
-    #else
+#else
     usleep(miliseconds * 1000);
-    #endif
+#endif
 }
 
 QString Arduino::port() const

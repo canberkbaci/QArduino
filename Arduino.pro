@@ -14,4 +14,4 @@ SOURCES += main.cpp \
 HEADERS += arduino.h \
         servo.h \
         board.h \
-    global.h
+        global.h

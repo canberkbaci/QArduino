@@ -12,7 +12,7 @@ namespace QArduino
 class Servo;
 typedef QList<Servo *> ServoList;
 
-class Arduino : QObject
+class Arduino : public QObject
 {
     Q_OBJECT
 

@@ -10,7 +10,7 @@ namespace QArduino
 
 class Arduino;
 
-class Servo : QObject
+class Servo : public QObject
 {
     Q_OBJECT
 

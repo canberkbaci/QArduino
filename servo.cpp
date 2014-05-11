@@ -52,6 +52,10 @@ float Servo::maxValue() const
 
 AnalogWritePin Servo::pin()
 {
+    if(m_pin == NULL)
+    {
+        emit error("Servo is not attached to any pin.");
+    }
     return (AnalogWritePin) *m_pin;
 }
 
@@ -79,9 +83,11 @@ void Servo::attach(const AnalogWritePin &pin)
     data.append(pin);
     if(m_board->m_device->write(data) == 3)
     {
-        QCoreApplication::processEvents();
-        m_pin = new AnalogWritePin(pin);
-        qDebug() << "Servo: attached to pin" << pin;
+        if(m_board->m_device->waitForBytesWritten(100))
+        {
+            m_pin = new AnalogWritePin(pin);
+            qDebug() << "Servo: attached to pin" << pin;
+        }
     }
 }
 
@@ -99,9 +105,9 @@ bool Servo::isAttached()
     data.append('0');
     if(m_board->m_device->write(data) == 3)
     {
-        if(m_board->m_device->waitForReadyRead(500))
+        if(m_board->m_device->waitForReadyRead(100))
         {
-            QCoreApplication::processEvents();
+            m_board->m_read();
             qDebug() << "Servo: isAttached successful.";
         }
     }
@@ -117,8 +123,10 @@ void Servo::detach()
     data.append('0');
     if(m_board->m_device->write(data) == 3)
     {
-        QCoreApplication::processEvents();
-        qDebug() << "Servo: detached";
+        if(m_board->m_device->waitForBytesWritten(100))
+        {
+            qDebug() << "Servo: detached";
+        }
     }
 }
 
@@ -146,8 +154,10 @@ void Servo::write(quint8 value)
     data.append(value - 128);
     if(m_board->m_device->write(data) == 3)
     {
-        QCoreApplication::processEvents();
-        qDebug() << "Servo: write value" << value;
+        if(m_board->m_device->waitForBytesWritten(100))
+        {
+            qDebug() << "Servo: write value" << value;
+        }
     }
 }
 
@@ -172,9 +182,9 @@ quint8 Servo::read()
     data.append('0');
     if(m_board->m_device->write(data) == 3)
     {
-        if(m_board->m_device->waitForReadyRead(500))
+        if(m_board->m_device->waitForReadyRead(100))
         {
-            QCoreApplication::processEvents();
+            m_board->m_read();
             qDebug() << "Servo: read successful.";
         }
     }
