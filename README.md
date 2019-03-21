@@ -1,10 +1,10 @@
-**QArduino:**
+**QArduino**
 
 Qt - Arduino talker class using serial port.
 
 Currently supports Arduino Uno.
 
-**Guideline:**
+**Guideline**
 	
 Upload protocol/protocol.ino to your Arduino Uno.
 
